@@ -57,13 +57,13 @@ void transpose_ref( uint32_t *size, uint32_t *perm, int dim,
       if( beta == (floatType) 0 )
          for(int i=0; i < sizeInner; ++i)
             if( conjA )
-               B_[i] = alpha * std::conj(A_[i * strideAinner]);
+               B_[i] = alpha * conj(A_[i * strideAinner]);
             else
                B_[i] = alpha * A_[i * strideAinner];
       else
          for(int i=0; i < sizeInner; ++i)
             if( conjA )
-               B_[i] = alpha * std::conj(A_[i * strideAinner]) + beta * B_[i];
+               B_[i] = alpha * conj(A_[i * strideAinner]) + beta * B_[i];
             else
                B_[i] = alpha * A_[i * strideAinner] + beta * B_[i];
    }

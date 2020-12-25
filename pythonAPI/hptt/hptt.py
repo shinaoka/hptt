@@ -5,7 +5,6 @@ from ctypes import cdll
 import os
 import random
 
-
 if 'OMP_NUM_THREADS' in os.environ:
     DEFAULT_THREADS = int(os.environ['OMP_NUM_THREADS'])
 else:
@@ -50,7 +49,6 @@ def checkContiguous(X):
         raise ValueError("Tensor is neither 'C' or 'F' contiguous.")
 
     return useRowMajor, order
-
 
 def tensorTransposeAndUpdate(perm, alpha, A, beta, B, numThreads=-1):
     """
@@ -100,6 +98,7 @@ def tensorTransposeAndUpdate(perm, alpha, A, beta, B, numThreads=-1):
     outerSizeB = sizeB
 
     # setup perm ctypes
+    perm = tuple(perm)
     permc = ctypes.cast((ctypes.c_int32 * len(perm))(*perm),
                         ctypes.POINTER(ctypes.c_voidp))
 

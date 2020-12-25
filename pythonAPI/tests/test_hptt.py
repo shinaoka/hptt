@@ -8,10 +8,10 @@ import hptt
 class TestTranpose:
 
     @pytest.mark.parametrize("dtype", [
-        'float32',
-        'float64',
+        #'float32',
+        #'float64',
         'complex64',
-        'complex128',
+        #'complex128',
     ])
     @pytest.mark.parametrize("axes", [
         (0, 1, 2, 3),
