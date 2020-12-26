@@ -50,6 +50,12 @@ def checkContiguous(X):
 
     return useRowMajor, order
 
+class Complex64(ctypes.Structure):
+    _fields_ = [("real", ctypes.c_float), ("imag", ctypes.c_float)]
+
+class Complex128(ctypes.Structure):
+    _fields_ = [("real", ctypes.c_double), ("imag", ctypes.c_double)]
+
 def tensorTransposeAndUpdate(perm, alpha, A, beta, B, numThreads=-1):
     """
         This function computes the tensor transposition of A.
@@ -98,7 +104,6 @@ def tensorTransposeAndUpdate(perm, alpha, A, beta, B, numThreads=-1):
     outerSizeB = sizeB
 
     # setup perm ctypes
-    perm = tuple(perm)
     permc = ctypes.cast((ctypes.c_int32 * len(perm))(*perm),
                         ctypes.POINTER(ctypes.c_voidp))
 
@@ -107,14 +112,21 @@ def tensorTransposeAndUpdate(perm, alpha, A, beta, B, numThreads=-1):
         tranpose_fn, scalar_fn = {
             'float32': (HPTTlib.sTensorTranspose, ctypes.c_float),
             'float64': (HPTTlib.dTensorTranspose, ctypes.c_double),
-            'complex64': (HPTTlib.cTensorTranspose, ctypes.c_float),
-            'complex128': (HPTTlib.zTensorTranspose, ctypes.c_double),
+            'complex64': (HPTTlib.cTensorTranspose, Complex64),
+            'complex128': (HPTTlib.zTensorTranspose, Complex128),
         }[str(A.dtype)]
     except KeyError:
         raise ValueError("Unsupported dtype: {}.".format(A.dtype))
 
     # tranpose!
-    tranpose_fn(permc, ctypes.c_int32(A.ndim),
+    if np.iscomplexobj(A):
+        cflag = ctypes.c_bool()
+        tranpose_fn(permc, ctypes.c_int32(A.ndim),
+                scalar_fn(alpha), cflag, dataA, sizeA, outerSizeA,
+                scalar_fn(beta), dataB, outerSizeB,
+                ctypes.c_int32(numThreads), ctypes.c_int32(useRowMajor))
+    else:
+        tranpose_fn(permc, ctypes.c_int32(A.ndim),
                 scalar_fn(alpha), dataA, sizeA, outerSizeA,
                 scalar_fn(beta), dataB, outerSizeB,
                 ctypes.c_int32(numThreads), ctypes.c_int32(useRowMajor))
