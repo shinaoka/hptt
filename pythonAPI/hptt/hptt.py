@@ -44,6 +44,7 @@ def checkContiguous(X):
         useRowMajor, order = {
             (True, False): (1, 'C'),
             (False, True): (0, 'F'),
+            (True, True): (1, 'C'),
         }[X.flags['C_CONTIGUOUS'], X.flags['F_CONTIGUOUS']]
     except KeyError:
         raise ValueError("Tensor is neither 'C' or 'F' contiguous.")
